@@ -1,46 +1,57 @@
-# Getting Started with Create React App
+# Botpress Voice React Project
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Talk to your Botpress bot, and give it a voice to talk back! This simple project is a template showing how you can integrated 3rd party services to bring speech to Botpress bots. All of the services used have very generous free tiers, so this project is free to spin up.
 
-## Available Scripts
+## Services Used:
+* [Botpress Cloud](www.botpress.com) for the chatbot itself. Botpress is a cloud-hosted, GPT-native platform for quickly building chatbots.
+* [Cloudflare AI Workers](https://developers.cloudflare.com/workers-ai/) for speech-to-text. Cloudflare AI Workers offer inference APIs for popular large language models. They have a very generous free tier, too!
+* [Elevnlabs](https://elevenlabs.io/) for text-to-speech. They provide great-sounding voices and have a generous free tier.
 
-In the project directory, you can run:
+This project uses Node.js and React.
 
-### `npm start`
+## Quickstart
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 1. Clone this repo
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+`git clone github.com/`
 
-### `npm test`
+### 2. Make a new .env
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Copy [.env.example](./env.example) and rename it to `.env`.
 
-### `npm run build`
+### 3. Publish your Botpress Bot and get its info
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+You need your bot's BotID and ClientID. The easiest way to get this is to publish your bot, then go to the Admin panel > Integrations > Webchat > Configurable
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+![Botpress Webchat configurable](docs/botpressInfo.png)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 4. Add your botId and clientId into the app
 
-### `npm run eject`
+Open [Chatbot.tsx](./src/Chatbot.tsx) and add your botId and clientId to lines 25 and 28, respectively. If you have custom CSS, you can add its link to line 34. [The botpress styler](https://styler.botpress.com) makes it easy to generate a CSS for your bot!
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### 5. Get your Cloudflare Account ID and API Key
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Your cloudflare account id is visible in the sidebar when you visit your [cloudflare dashboard](https://dash.cloudflare.com/).
+![alt text](docs/cloudflareAccountId.png)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+For your API key, click the 'manage API tokens' and then make a new API key.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+![alt text](docs/cloudflareAPIKey.png)
 
-## Learn More
+Save these to the appropriate lines in your new `.env` file from step 2.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 6. Get your Elevenlabs API Key and Voice
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+After signing up for elevenlabs, you can visit their [voice library](https://elevenlabs.io/app/voice-library) to find a voice you like. After adding it to your account, you can find the voice ID by hovering over the icon in the top right corner.
+
+![alt text](docs/elevenLabsVoiceId.png)
+
+To get your elevenlabs API key, go to your profile and click on API keys. You can find your API key there.
+
+![alt text](docs/elevenlabsAPIKey.png)
+
+Save these to the appropriate lines in your new `.env` file from step 2.
+
+### 7. Run the project
+
+`npm run start`
