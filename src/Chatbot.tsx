@@ -1,3 +1,4 @@
+// src/Chatbot.tsx
 ////////////////    Chatbot Component   /////////////////
 //  This react component embeds the Botpress widget as //
 //  An iframe inside the page, and also includes all   //
@@ -6,6 +7,7 @@
 //  pushing the bot messages to the TTS service.       //
 //////////////////////////////////////////////////////////
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import './Chatbot.css';
 import axios from 'axios'
 
 console.log(process.env)
@@ -31,7 +33,7 @@ const botConfig = {
     disableAnimations: true, // Needed for bot to render without its widget
     hideWidget: true, // Since we are embedding the bot, no need for a widget
     enableConversationDeletion: true,
-    stylesheet:"https://webchat-styler-css.botpress.app/prod/code/7c2e8673-b084-4bea-849c-1c7addf1eb04/v31111/style.css"
+    stylesheet: "https://webchat-styler-css.botpress.app/prod/code/7c2e8673-b084-4bea-849c-1c7addf1eb04/v31111/style.css"
 };
 
 const Chatbot: React.FC<ChatbotProps> = ({ userInput, onUpdateStatus }) => {
@@ -95,66 +97,63 @@ const Chatbot: React.FC<ChatbotProps> = ({ userInput, onUpdateStatus }) => {
     }, []);
 
     // Plays audio from the queue
-    const playNextAudio = () => {
-        if (audioQueue.length > 0 && !isPlaying) {
-          setIsPlaying(true);
-          const nextAudioUrl = audioQueue.shift();
-          if (audioRef.current && nextAudioUrl) {
-            audioRef.current.src = nextAudioUrl;
-            audioRef.current.play().catch(error => {
-              console.error('Error during audio playback:', error);
-              setIsPlaying(false);
-            });
-          }
+    const playNextAudio = useCallback(() => {
+        if (audioQueue.length === 0 || isPlaying) return;
+        const next = audioQueue[0];
+        if (audioRef.current && next) {
+            setIsPlaying(true);
+            audioRef.current.src = next;
+            audioRef.current
+                .play()
+                .catch(err => {
+                    console.error('Audio playback error:', err);
+                    setIsPlaying(false);
+                });
         }
-      };
-      // Monitors the audio queue and plays audio when there is a change
-      useEffect(() => {
-        if (!isPlaying) {
-          playNextAudio();
-        }
-      }, [audioQueue, isPlaying]);
+    }, [audioQueue, isPlaying]);
+    // Monitors the audio queue and plays audio when there is a change
+    useEffect(() => {
+        playNextAudio();
+    }, [audioQueue, playNextAudio]);
 
-      useEffect(() => {
+    useEffect(() => {
         if (messageQueue.length > 0 && !isPlaying) {
-          const fetchAudio = async () => {
-            const message = messageQueue.shift();
-            try {
-              const response = await axios.post('http://localhost:3001/tts', { text: message }, { responseType: 'blob' });
-              const blobUrl = URL.createObjectURL(response.data);
-              setAudioQueue(prevQueue => [...prevQueue, blobUrl]);
-            } catch (error) {
-              console.error('Error fetching audio:', error);
-            }
-          };
-          fetchAudio();
+            const fetchAudio = async () => {
+                const message = messageQueue.shift();
+                try {
+                    const response = await axios.post('/api/tts', { text: message }, { responseType: 'blob' });
+                    const blobUrl = URL.createObjectURL(response.data);
+                    setAudioQueue(prevQueue => [...prevQueue, blobUrl]);
+                } catch (error) {
+                    console.error('Error fetching audio:', error);
+                }
+            };
+            fetchAudio();
         }
-      }, [messageQueue, isPlaying]);  // Fetch audio only when not currently playing
-    
-      
-      useEffect(() => {
+    }, [messageQueue, isPlaying]);  // Fetch audio only when not currently playing
+
+
+    useEffect(() => {
         if (!audioRef.current) {
-          const audio = new Audio();
-          audio.style.display = 'none';
-          audio.volume = 0.75;
-          document.body.appendChild(audio);
-          audioRef.current = audio;
-          audio.onended = () => {
-            setIsPlaying(false);
-            if (audioQueue.length > 0) {
-              playNextAudio();
-            }
-          };
+            const audio = new Audio();
+            audio.style.display = 'none';
+            audio.volume = 0.75;
+            document.body.appendChild(audio);
+            audioRef.current = audio;
+            audio.onended = () => {
+                setIsPlaying(false);
+                setAudioQueue(q => q.slice(1));
+            };
         }
         return () => {
-          audioRef.current?.remove();
+            audioRef.current?.remove();
         };
-      }, []);
-    
+    }, [audioQueue.length, playNextAudio]);
+
 
     return (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', height: '90%', zIndex: 1000 }}>
-            <iframe ref={iframeRef} style={{ border: 'none', width: '100%', height: '100%' }} title="Botpress Webchat" />
+        <div className="chatbot-shell">
+            <iframe ref={iframeRef} title="Botpress Webchat" />
         </div>
     );
 };

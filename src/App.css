@@ -1,39 +1,86 @@
-.App {
-  text-align: center;
-  align-items: center;
+/* ==== GLOBAL ======================================================== */
+body {
+  margin: 0;
+  background: #121212;
+  color: #e0e0e0;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+/* clickable links */
+a { color: #64b5f6; text-decoration: none; }
+a:hover { text-decoration: underline; }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+/* ==== SHELL ========================================================= */
+.app-shell {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
+}
+
+/* ---------- TOP BAR ------------------------------------------------- */
+.topbar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  padding: 1rem 0 0.5rem;
+  background: #1d1d1d;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 60%);
+  z-index: 100;              /* keeps it above the iframe */
 }
 
-.App-link {
-  color: #61dafb;
+.topbar h1 {
+  margin: 0;
+  font-size: 1.6rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.links {
+  margin-top: 0.35rem;
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.95rem;
+}
+
+/* ---------- MAIN ---------------------------------------------------- */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0 2rem;
+}
+
+.chatbox {
+  width: min(800px, 85vw);
+  height: 70vh;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 50%);
+}
+
+/* ---------- STATUS -------------------------------------------------- */
+.status {
+  margin-top: 1.25rem;
+  font-size: 1.4rem;
+  min-height: 2.2rem;    /* reserves space when empty */
+}
+
+.spinner {
+  border: 4px solid #333;
+  border-top: 4px solid #64b5f6;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 1s linear infinite;
+  margin: 0.75rem auto 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.chatbox {
+  width: min(800px, 85vw);
+  height: 70vh;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 50%);
+  /* NEW */
+  margin: 0 auto;         /* centres horizontally */
 }

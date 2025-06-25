@@ -1,5 +1,6 @@
 //src/App.tsx
 import React, { useState, useEffect } from 'react';
+import './App.css';
 import Chatbot from './Chatbot';
 
 // Define interfaces for handling and typing API response data related to speech-to-text results.
@@ -27,18 +28,20 @@ const App: React.FC = () => {
   const [audioRecorder, setAudioRecorder] = useState<MediaRecorder | null>(null);
   const [recording, setRecording] = useState<boolean>(false);
   const [chatbotText, setChatbotText] = useState<string>("");
-  const [status, setStatus] = useState<string>("Press and hold Space Bar to record");
+  const [status, setStatus] = useState<string>("Press and hold space bar to speak");
+  const [loading, setLoading] = useState(false);
 
   // Effect to request microphone access and setup the media recorder.
   useEffect(() => {
     async function getMicrophone() {
       try {
+        setLoading(true);
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const mediaRecorder = new MediaRecorder(stream);
         setAudioRecorder(mediaRecorder);
       } catch (error) {
         console.error('Error accessing media devices.', error);
-      }
+      } finally { setLoading(false); }
     }
 
     getMicrophone();
@@ -91,9 +94,10 @@ const App: React.FC = () => {
 
   // Function to send audio data to the server for speech-to-text processing.
   async function postData(arrayBuffer: ArrayBuffer) {
+    setStatus("Sending data to Botpress...");
     try {
       console.log("Sending data to endpoint...");
-      const response = await fetch('http://localhost:3001/upload', {
+      const response = await fetch('/api/upload', {
         method: 'POST',
         body: arrayBuffer,
         headers: {
@@ -103,8 +107,9 @@ const App: React.FC = () => {
       const data: ApiResponse = await response.json();
       if (data.success) {
         console.log(data.result.text);
-        console.log("Updating chatbot state...")
         setChatbotText(data.result.text);  // Update the state with the new text from the response.
+
+        setStatus("Bot is processing...");
       } else {
         console.error('API did not return success');
       }
@@ -116,28 +121,38 @@ const App: React.FC = () => {
   // Effect to handle chatbot text changes and process for text-to-speech.
   useEffect(() => {
     if (chatbotText !== "") {
-      setStatus("Processing Text to Speech");
+      setStatus("Press and hold space bar to speak");
       // Potentially here additional functionality could handle the processed text.
     }
   }, [chatbotText]);
 
   // Rendering the main App component with the Chatbot component.
   return (
-    <div className="App">
-      <h1 style={{ color: recording ? 'red' : 'black' }}>
-        {status}
-      </h1>
-      <div style={{
-        width: '80vw',
-        height: '80vh',
-        margin: 'auto',
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)'
-      }}>
-        <Chatbot userInput={chatbotText} onUpdateStatus={setStatus} />  {/* Pass the text and status update function as props to Chatbot */}
-      </div>
+    <div className="app-shell">
+      {/* ── Top Bar ───────────────────────────── */}
+      <header className="topbar">
+        <h1>🗣️ Botpress Voice Demo</h1>
+        <nav className="links">
+          <a href="https://hanakano.com" target="_blank" rel="noreferrer">
+            Hanakano&nbsp;Consulting
+          </a>
+          <a href="https://github.com/gordon-bp/botpress-voice-demo" target="_blank" rel="noreferrer">
+            GitHub&nbsp;Repo
+          </a>
+        </nav>
+      </header>
+
+      {/* ── Main Content ─────────────────────── */}
+      <main className="main">
+        <div className="chatbox">
+          <Chatbot userInput={chatbotText} onUpdateStatus={setStatus} />
+        </div>
+
+        <div className="status" style={{ color: recording ? '#ef5350' : '#e0e0e0' }}>
+          {status}
+        </div>
+        {loading && <div className="spinner" />}
+      </main>
     </div>
   );
 };
