@@ -7,6 +7,7 @@
 //  pushing the bot messages to the TTS service.       //
 //////////////////////////////////////////////////////////
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import './Chatbot.css';
 import axios from 'axios'
 
 console.log(process.env)
@@ -97,22 +98,23 @@ const Chatbot: React.FC<ChatbotProps> = ({ userInput, onUpdateStatus }) => {
 
     // Plays audio from the queue
     const playNextAudio = useCallback(() => {
-        if (audioQueue.length > 0 && !isPlaying) {
+        if (audioQueue.length === 0 || isPlaying) return;
+        const next = audioQueue[0];
+        if (audioRef.current && next) {
             setIsPlaying(true);
-            const nextAudioUrl = audioQueue.shift();
-            if (audioRef.current && nextAudioUrl) {
-                audioRef.current.src = nextAudioUrl;
-                audioRef.current.play().catch(error => {
-                    console.error('Error during audio playback:', error);
+            audioRef.current.src = next;
+            audioRef.current
+                .play()
+                .catch(err => {
+                    console.error('Audio playback error:', err);
                     setIsPlaying(false);
                 });
-            }
         }
     }, [audioQueue, isPlaying]);
     // Monitors the audio queue and plays audio when there is a change
     useEffect(() => {
-        if (!isPlaying) playNextAudio();
-    }, [audioQueue, isPlaying]);
+        playNextAudio();
+    }, [audioQueue, playNextAudio]);
 
     useEffect(() => {
         if (messageQueue.length > 0 && !isPlaying) {
@@ -139,6 +141,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ userInput, onUpdateStatus }) => {
             document.body.appendChild(audio);
             audioRef.current = audio;
             audio.onended = () => {
+                setIsPlaying(false);
                 setAudioQueue(q => q.slice(1));
             };
         }
@@ -149,8 +152,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ userInput, onUpdateStatus }) => {
 
 
     return (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', height: '90%', zIndex: 1000 }}>
-            <iframe ref={iframeRef} style={{ border: 'none', width: '100%', height: '100%' }} title="Botpress Webchat" />
+        <div className="chatbot-shell">
+            <iframe ref={iframeRef} title="Botpress Webchat" />
         </div>
     );
 };
