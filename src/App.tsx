@@ -1,3 +1,4 @@
+//src/App.tsx
 import React, { useState, useEffect } from 'react';
 import Chatbot from './Chatbot';
 
@@ -127,16 +128,16 @@ const App: React.FC = () => {
         {status}
       </h1>
       <div style={{
-      width: '80vw',
-      height: '80vh',
-      margin: 'auto',
-      position: 'fixed',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)'
-    }}>
-          <Chatbot userInput={chatbotText} onUpdateStatus={setStatus}/>  {/* Pass the text and status update function as props to Chatbot */}
-          </div>
+        width: '80vw',
+        height: '80vh',
+        margin: 'auto',
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)'
+      }}>
+        <Chatbot userInput={chatbotText} onUpdateStatus={setStatus} />  {/* Pass the text and status update function as props to Chatbot */}
+      </div>
     </div>
   );
 };

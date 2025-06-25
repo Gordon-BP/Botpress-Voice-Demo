@@ -1,3 +1,4 @@
+// src/server.ts
 import express, { Request, Response, NextFunction, } from 'express';
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import dotenv from "dotenv"
@@ -5,7 +6,7 @@ dotenv.config()
 
 const app = express();
 const PORT = 3001;
-const MAX_CONCURRENCY = process.env.MAX_CONCURRENCY? parseInt(process.env.MAX_CONCURRENCY) : 2
+const MAX_CONCURRENCY = process.env.MAX_CONCURRENCY ? parseInt(process.env.MAX_CONCURRENCY) : 2
 let activeRequests = 0;
 interface QueueItem {
     res: Response;
@@ -44,10 +45,10 @@ app.post('/upload', (req: Request, res: Response) => {
         headers: { 'Content-Type': 'application/octet-stream', Authorization: 'Bearer ' + process.env.CLOUDFLARE_API_KEY },
         data: req.body
     };
-    axios.request(options).then(function (response: AxiosResponse) {
+    axios.request(options).then(function(response: AxiosResponse) {
         console.log(`Received STT: ${response.data.result.text}`)
         res.status(200).json(response.data);
-    }).catch(function (error: AxiosError) {
+    }).catch(function(error: AxiosError) {
         console.error(error.message);
     });
 
